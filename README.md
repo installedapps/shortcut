@@ -3,8 +3,8 @@
 WIP scaffold for a simple AI-based photo assistant. Upload a reference photograph and Shortcut
 returns Lightroom and Darktable settings you can use as a starting point for a similar look.
 
-The current analysis service is intentionally placeholder/heuristic. It proves the frontend,
-backend, API contract, tests, and database shape, but it does not yet call a real vision model.
+The backend can call Kimi/Moonshot for AI-backed photo analysis when a local API key is configured.
+Without a key, it falls back to a deterministic local heuristic service for offline development.
 
 ## Stack
 
@@ -13,8 +13,8 @@ backend, API contract, tests, and database shape, but it does not yet call a rea
 - Database: PostgreSQL, with a JSONB settings payload
 
 The result view uses a hamburger menu to switch between Lightroom settings and Darktable module
-settings. Darktable output recommends one display transform at a time, then lists starting values for
-AgX, color balance rgb, color equalizer, and tone equalizer.
+settings. Darktable output uses AgX as the display transform, then lists starting values only for
+AgX, local contrast, color balance RGB, color equalizer, and tone equalizer.
 
 ## Current WIP Scope
 
@@ -24,14 +24,24 @@ AgX, color balance rgb, color equalizer, and tone equalizer.
 - Persist analysis records to PostgreSQL when `ConnectionStrings__ShortcutDb` is configured.
 - Fall back to an in-memory repository when no database connection string is provided.
 
-## Next Step
+## API keys
 
-Replace `HeuristicPhotoAnalysisService` with a real AI-backed `IPhotoAnalysisService`
-implementation. Keep API keys in backend configuration only, for example:
+Do not commit API keys. Store a Kimi/Moonshot key in local user-secrets or an environment variable.
+
+Using .NET user-secrets:
 
 ```sh
-OpenAI__ApiKey="your-key-here"
+cd backend/src/Shortcut.Api
+dotnet user-secrets set "Kimi:ApiKey" "your-key-here"
 ```
+
+Or using an environment variable for a single shell:
+
+```sh
+export Kimi__ApiKey="your-key-here"
+```
+
+The backend also accepts `Moonshot:ApiKey` / `Moonshot__ApiKey` and `MOONSHOT_API_KEY`.
 
 ## Run locally
 
@@ -52,17 +62,29 @@ Run the frontend:
 
 ```sh
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Open `http://localhost:5173`.
+
+## Error logs
+
+The API writes one log file per analysis error to `logs/errors` under the API content root. Each
+file includes the UTC timestamp, trace ID, error type, user-facing message, request path, upload
+metadata, and exception details when available.
+
+Override the directory with:
+
+```sh
+LogFiles__ErrorDirectory="/tmp/shortcut-errors"
+```
 
 ## Test
 
 ```sh
 cd frontend
-npm test
+pnpm test
 ```
 
 ```sh

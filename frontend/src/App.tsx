@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, DragEvent, useEffect, useMemo, useState } from "react";
 import { AnalysisResponse, createAnalysis } from "./api";
 
 type SettingsMode = "lightroom" | "darktable";
@@ -9,6 +9,8 @@ function App() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [settingsMode, setSettingsMode] = useState<SettingsMode>("lightroom");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDraggingPhoto, setIsDraggingPhoto] = useState(false);
+  const [copiedSettingKey, setCopiedSettingKey] = useState<string | null>(null);
 
   const analysis = useMutation<AnalysisResponse, Error, File>({
     mutationFn: createAnalysis
@@ -39,6 +41,24 @@ function App() {
     const nextPhoto = event.target.files?.[0] ?? null;
     setPhoto(nextPhoto);
     analysis.reset();
+    setCopiedSettingKey(null);
+  };
+
+  const onDropPhoto = (event: DragEvent<HTMLLabelElement>) => {
+    event.preventDefault();
+    setIsDraggingPhoto(false);
+    const nextPhoto = event.dataTransfer.files?.[0] ?? null;
+    if (nextPhoto) {
+      setPhoto(nextPhoto);
+      analysis.reset();
+      setCopiedSettingKey(null);
+    }
+  };
+
+  const copySetting = async (setting: string, key: string) => {
+    await navigator.clipboard?.writeText(setting);
+    setCopiedSettingKey(key);
+    window.setTimeout(() => setCopiedSettingKey(null), 1800);
   };
 
   const activeSettings = analysis.data
@@ -71,7 +91,16 @@ function App() {
               }
             }}
           >
-            <label className="drop-zone">
+            <label
+              className={`drop-zone${isDraggingPhoto ? " drop-zone-active" : ""}`}
+              onDragEnter={(event) => {
+                event.preventDefault();
+                setIsDraggingPhoto(true);
+              }}
+              onDragOver={(event) => event.preventDefault()}
+              onDragLeave={() => setIsDraggingPhoto(false)}
+              onDrop={onDropPhoto}
+            >
               <span className="drop-zone-label">Photograph</span>
               <span className="drop-zone-text">Choose a reference image</span>
               <span className="drop-zone-meta">{selectedPhotoMeta}</span>
@@ -87,13 +116,27 @@ function App() {
             )}
 
             <button className="primary-button" type="submit" disabled={!photo || analysis.isPending}>
-              {analysis.isPending ? "Generating..." : "Generate settings"}
+              {analysis.isPending ? (
+                <>
+                  <span className="loading-spinner" aria-hidden="true" />
+                  Generating settings
+                </>
+              ) : (
+                "Generate settings"
+              )}
             </button>
             {analysis.isError ? <p className="error-message">{analysis.error.message}</p> : null}
           </form>
 
           <section className="results-panel" aria-live="polite" aria-label="Generated edit settings">
-            {analysis.data ? (
+            {analysis.isPending ? (
+              <div className="results-loading" role="status" aria-label="Generating settings">
+                <span className="loading-spinner large" aria-hidden="true" />
+                <p className="eyebrow">Generating</p>
+                <h2>Reading the image.</h2>
+                <p>Building a practical settings list for the selected editor.</p>
+              </div>
+            ) : analysis.data ? (
               <>
                 <div className="result-header">
                   <div>
@@ -154,21 +197,31 @@ function App() {
                 <p className="summary">{analysis.data.summary}</p>
                 {settingsMode === "darktable" ? (
                   <p className="module-note">
-                    Use one display transform: AgX is listed as the recommended module here. If you
-                    prefer sigmoid or filmic rgb, use it instead of AgX rather than combining them.
+                    Use AgX as the display transform, then make only the listed module tweaks.
                   </p>
                 ) : null}
                 <div className="settings-list">
-                  {activeSettings.map((setting) => (
-                    <article className="setting-card" key={`${setting.group}-${setting.name}`}>
+                  {activeSettings.map((setting) => {
+                    const settingKey = `${setting.group}-${setting.name}`;
+                    return (
+                    <article className="setting-card" key={settingKey}>
                       <div>
                         <span className="setting-group">{setting.group}</span>
                         <h3>{setting.name}</h3>
                         <p>{setting.rationale}</p>
                       </div>
-                      <strong>{setting.value}</strong>
+                      <div className="setting-value">
+                        <strong>{setting.value}</strong>
+                        <button
+                          type="button"
+                          onClick={() => void copySetting(`${setting.group} / ${setting.name}: ${setting.value}`, settingKey)}
+                        >
+                          {copiedSettingKey === settingKey ? "Copied" : "Copy"}
+                        </button>
+                      </div>
                     </article>
-                  ))}
+                    );
+                  })}
                 </div>
               </>
             ) : (

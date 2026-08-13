@@ -25,8 +25,21 @@ export async function createAnalysis(photo: File): Promise<AnalysisResponse> {
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(error || "The photograph could not be analyzed.");
+    throw new Error(readErrorMessage(error) || "The photograph could not be analyzed.");
   }
 
   return response.json();
+}
+
+function readErrorMessage(error: string): string {
+  if (!error) {
+    return "";
+  }
+
+  try {
+    const problem = JSON.parse(error) as { detail?: string; title?: string };
+    return problem.detail || problem.title || error;
+  } catch {
+    return error;
+  }
 }

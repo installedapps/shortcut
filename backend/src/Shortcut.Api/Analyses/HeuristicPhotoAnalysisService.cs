@@ -31,14 +31,18 @@ public sealed class HeuristicPhotoAnalysisService : IPhotoAnalysisService
 
         var darktableSettings = new List<EditSetting>
         {
-            new("Display Transform", "AgX", "Preset: blender-like | base", "Use AgX as the single display transform for a natural film-like tone map."),
+            new("AgX", "look", "medium high contrast", "Use AgX as the single display transform for a natural tone map."),
             new("AgX", "white relative exposure", isLikelyBright ? "+3.0 EV" : "+3.6 EV", "Set the upper exposure range before refining with the auto tune levels picker."),
             new("AgX", "black relative exposure", "-7.0 EV", "Anchors the shadow range while keeping a soft toe."),
             new("AgX", "contrast", "1.10", "Adds a restrained curve slope around the pivot."),
-            new("AgX", "look saturation", "1.06", "Gives the rendered image a small warm color lift after tone mapping."),
-            new("Color", "color balance rgb", "Global chroma +8%, shadows lift +2%, highlights warmth +4%", "Use scene-referred grading for broad warmth and subtle split tone."),
-            new("Color", "color equalizer", "Orange saturation +10%, blue saturation -12%, cyan brightness -4%", "Selectively shapes hues without relying on older display-referred color zones."),
-            new("Tone", "tone equalizer", "Shadows +0.3 EV, midtones +0.1 EV, highlights -0.4 EV", "Dodge and burn tonal ranges while preserving local contrast.")
+            new("AgX", "saturation", "1.06", "Gives the rendered image a small warm color lift after tone mapping."),
+            new("local contrast", "detail", "+12%", "Adds mid-scale structure without reaching for extra sharpening modules."),
+            new("color balance RGB", "global chroma", "+8%", "Uses scene-referred grading for broad color intensity."),
+            new("color balance RGB", "highlights warmth", "+4%", "Adds a subtle warm highlight bias while keeping neutrals controlled."),
+            new("color equalizer", "orange saturation", "+10%", "Strengthens warm subject tones selectively."),
+            new("color equalizer", "blue saturation", "-12%", "Reduces cool distractions and supports the grey-orange palette."),
+            new("tone equalizer", "shadows", "+0.3 EV", "Opens darker detail while preserving the overall contrast shape."),
+            new("tone equalizer", "highlights", "-0.4 EV", "Controls brighter regions without changing the display transform.")
         };
 
         return new AnalysisResponse(

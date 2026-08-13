@@ -103,11 +103,22 @@ h1 {
   background: #f7f7f7;
   padding: 22px;
   cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
 }
 
 .drop-zone:focus-within {
   outline: 3px solid rgba(239, 124, 49, 0.32);
   outline-offset: 2px;
+}
+
+.drop-zone:hover,
+.drop-zone-active {
+  border-color: #ef7c31;
+  background: #fff8f3;
+  transform: translateY(-1px);
 }
 
 .drop-zone input {
@@ -155,6 +166,10 @@ h1 {
 }
 
 .primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   min-height: 48px;
   border: 0;
   border-radius: 8px;
@@ -162,12 +177,46 @@ h1 {
   color: #171717;
   font-weight: 800;
   cursor: pointer;
+  transition:
+    background 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.primary-button:not(:disabled):hover {
+  background: #f08b46;
+  box-shadow: 0 10px 24px rgba(239, 124, 49, 0.22);
+  transform: translateY(-1px);
 }
 
 .primary-button:disabled {
   background: #c9c9c9;
   color: #777;
   cursor: not-allowed;
+}
+
+.loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(23, 23, 23, 0.22);
+  border-top-color: #171717;
+  border-radius: 999px;
+  animation: spin 780ms linear infinite;
+}
+
+.loading-spinner.large {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 18px;
+  border-width: 5px;
+  border-color: rgba(239, 124, 49, 0.24);
+  border-top-color: #ef7c31;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .error-message {
@@ -179,6 +228,24 @@ h1 {
 .results-panel {
   min-height: 560px;
   padding: 24px;
+}
+
+.results-loading {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  min-height: 500px;
+}
+
+.results-loading h2 {
+  margin-bottom: 10px;
+  color: #1f1f1f;
+  font-size: 1.8rem;
+}
+
+.results-loading p:last-child {
+  color: #626262;
+  line-height: 1.6;
 }
 
 .result-header {
@@ -286,6 +353,16 @@ h1 {
   border-radius: 8px;
   background: #f9f9f9;
   padding: 16px;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.setting-card:hover {
+  border-color: #efc19d;
+  box-shadow: 0 10px 26px rgba(32, 32, 32, 0.08);
+  transform: translateY(-1px);
 }
 
 .setting-card h3 {
@@ -300,13 +377,35 @@ h1 {
   line-height: 1.45;
 }
 
-.setting-card strong {
+.setting-value {
+  display: grid;
+  gap: 8px;
+  justify-items: stretch;
+}
+
+.setting-value strong {
   min-width: 72px;
   border-radius: 6px;
   background: #fff0e5;
   color: #c7511d;
   padding: 10px 12px;
   text-align: center;
+}
+
+.setting-value button {
+  border: 1px solid #dedede;
+  border-radius: 6px;
+  background: #fff;
+  color: #3a3a3a;
+  padding: 8px 10px;
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.setting-value button:hover {
+  border-color: #ef7c31;
+  color: #c7511d;
 }
 
 .setting-group {
@@ -334,6 +433,10 @@ h1 {
 
   .setting-card {
     grid-template-columns: 1fr;
+  }
+
+  .setting-value {
+    justify-items: start;
   }
 
   .result-header {
