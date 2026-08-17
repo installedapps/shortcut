@@ -23,6 +23,9 @@ public sealed class KimiAnalysisRequestFactory(string model)
                       ]
                     }
                     Include 8 to 10 Lightroom settings and 5 to 8 Darktable settings.
+                    Lightroom Temperature value must be an absolute Kelvin value such as "6200 K", never a relative value such as "+11".
+                    Lightroom Tint, Vibrance, and Saturation values must include an explicit + or - sign such as "+6" or "-3".
+                    Lightroom must include Color Grading settings for Shadows, Midtones, and Highlights.
                     Darktable settings must use only these modules as the group value: AgX, local contrast, color balance RGB, color equalizer, tone equalizer.
                     For Darktable, use AgX as the only display transform. Never mention or recommend any other display transform or any module outside the allowed list.
                     Make every Darktable setting a tweakable control within its module, not a general instruction.

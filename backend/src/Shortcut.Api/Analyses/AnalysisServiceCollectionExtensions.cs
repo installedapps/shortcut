@@ -14,12 +14,14 @@ public static class AnalysisServiceCollectionExtensions
 
     private static void AddPhotoAnalysisService(this IServiceCollection services, IConfiguration configuration)
     {
-        if (string.IsNullOrWhiteSpace(ReadKimiApiKey(configuration)))
+        if (string.IsNullOrWhiteSpace(KimiConfiguration.ReadApiKey(configuration)))
         {
+            services.AddSingleton(new AnalysisRuntimeInfo("heuristic"));
             services.AddSingleton<IPhotoAnalysisService, HeuristicPhotoAnalysisService>();
             return;
         }
 
+        services.AddSingleton(new AnalysisRuntimeInfo("kimi"));
         services.AddSingleton(new KimiAnalysisRequestFactory(configuration["Kimi:Model"] ?? "kimi-k2.6"));
         services.AddHttpClient<IPhotoAnalysisService, KimiPhotoAnalysisService>(client =>
         {
@@ -36,12 +38,4 @@ public static class AnalysisServiceCollectionExtensions
             ? new InMemoryAnalysisRepository()
             : new PostgresAnalysisRepository(connectionString);
     }
-
-    private static string? ReadKimiApiKey(IConfiguration configuration) =>
-        new[]
-        {
-            configuration["Kimi:ApiKey"],
-            configuration["Moonshot:ApiKey"],
-            configuration["MOONSHOT_API_KEY"]
-        }.FirstOrDefault(value => !string.IsNullOrWhiteSpace(value))?.Trim();
 }

@@ -15,7 +15,7 @@ public sealed class HeuristicPhotoAnalysisService : IPhotoAnalysisService
 
         var lightroomSettings = new List<EditSetting>
         {
-            new("Basic", "Temperature", "+8", "Adds a restrained orange warmth without overwhelming neutral greys."),
+            new("Basic", "Temperature", "6200 K", "Adds a restrained orange warmth without overwhelming neutral greys."),
             new("Basic", "Tint", "+3", "Keeps skin and highlights from leaning too green."),
             new("Basic", "Exposure", isLikelyBright ? "-0.20" : "+0.25", "Moves the file toward a balanced midtone baseline."),
             new("Basic", "Contrast", "+12", "Creates a cleaner starting look while preserving edit room."),
@@ -23,6 +23,11 @@ public sealed class HeuristicPhotoAnalysisService : IPhotoAnalysisService
             new("Basic", "Shadows", "+18", "Opens darker detail for a softer photographic grade."),
             new("Presence", "Texture", "-5", "Slightly smooths fine digital bite."),
             new("Presence", "Clarity", "+6", "Adds enough structure to keep the image from becoming flat."),
+            new("Basic", "Vibrance", "+14", "Adds controlled color intensity while protecting skin tones."),
+            new("Basic", "Saturation", "-3", "Keeps the palette restrained after the vibrance lift."),
+            new("Color Grading", "Shadows", "Hue 220 / Sat 8 / Lum -2", "Adds a quiet cool counterweight in darker tones."),
+            new("Color Grading", "Midtones", "Hue 34 / Sat 10 / Lum +3", "Builds the warm grey-orange character through the midtones."),
+            new("Color Grading", "Highlights", "Hue 48 / Sat 6 / Lum +2", "Gives bright areas a soft golden bias."),
             new("Color Mixer", "Orange Saturation", "+10", "Strengthens warm subject tones for the requested look."),
             new("Color Mixer", "Blue Saturation", "-12", "Reduces cool distractions and supports the grey-orange palette."),
             new("Tone Curve", "Highlights", "-10", "Softens the shoulder of the curve for a calmer highlight rolloff."),
